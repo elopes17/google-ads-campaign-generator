@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Google Ads Campaign Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="app-shell">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="app-header" aria-labelledby="product-name">
+    <div class="page-shell">
+        <p class="eyebrow">Local campaign planning tool</p>
+        <h1 id="product-name">Google Ads Campaign Generator</h1>
+        <p class="product-intro">Build a rules-based draft Search campaign for local plumbing and heating services. Review the plan in your browser, then download an Excel workbook, an offline landing-page package, or a Google Ads Editor draft.</p>
+        <p class="demo-entry"><a href="{{ url_for('demo') }}">View Fictional Demo</a><span>Explore a complete sample built from fictional information. Nothing is published or transmitted.</span></p>
+        <ul class="feature-list" aria-label="Available exports">
+            <li><strong>Excel Workbook</strong><span>Eight structured planning sheets</span></li>
+            <li><strong>Offline Landing Pages</strong><span>Local HTML previews for selected services</span></li>
+            <li><strong>Google Ads Editor Draft</strong><span>Paused proposed changes for human review</span></li>
+        </ul>
+    </div>
+</header>
+
+<main class="page-shell intake-page" id="main-content">
+    <div class="page-heading">
+        <div>
+            <p class="eyebrow">Campaign intake</p>
+            <h2>Tell Us About the Campaign</h2>
+        </div>
+        <p><span class="required-key">Required</span> fields must be completed before generating a plan.</p>
+    </div>
+
+    {% if error %}
+    <div class="error" role="alert" aria-live="assertive">
+        <strong>Review the submitted details.</strong>
+        <p>{{ error }}</p>
+    </div>
+    {% endif %}
+
+    <form class="intake-form" method="post" action="{{ url_for('generate') }}">
+        <section class="form-section" aria-labelledby="campaign-basics-heading">
+            <h3 id="campaign-basics-heading">Campaign Basics</h3>
+            <p class="section-help">Provide the business, primary market, service area, and planned monthly spend.</p>
+
+            <div class="field-group">
+                <div class="field-heading"><label for="business_name">Business Name</label><span class="field-status">Required</span></div>
+                <input id="business_name" name="business_name" value="{{ form.get('business_name', '') }}" required>
+            </div>
+
+            <div class="field-grid">
+                <div class="field-group">
+                    <div class="field-heading"><label for="city">City</label><span class="field-status">Required</span></div>
+                    <input id="city" name="city" placeholder="Plymouth" value="{{ form.get('city', '') }}" required>
+                </div>
+                <div class="field-group">
+                    <div class="field-heading"><label for="state">State</label><span class="field-status">Required</span></div>
+                    <input id="state" name="state" placeholder="Massachusetts" value="{{ form.get('state', '') }}" required>
+                </div>
+            </div>
+
+            <div class="field-group">
+                <div class="field-heading"><label for="service_area">Service Area</label><span class="field-status">Required</span></div>
+                <input id="service_area" name="service_area" placeholder="Counties, cities, or towns served" value="{{ form.get('service_area', '') }}" required>
+                <p class="field-help">Use the broader area served. Short ads use the submitted city.</p>
+            </div>
+
+            <div class="field-group">
+                <div class="field-heading"><label for="monthly_budget">Monthly Google Ads Budget (USD)</label><span class="field-status">Required</span></div>
+                <input type="number" id="monthly_budget" name="monthly_budget" min="0.01" step="0.01" value="{{ form.get('monthly_budget', '') }}" required>
+                <p class="field-help">Enter a positive amount with no more than two decimal places.</p>
+            </div>
+        </section>
+
+        <section class="form-section" aria-labelledby="goals-heading">
+            <h3 id="goals-heading">Goals and Availability</h3>
+            <p class="section-help">Choose how prospective customers should respond and whether verified 24/7 emergency service is available.</p>
+
+            <div class="field-group">
+                <div class="field-heading"><label for="primary_goal">Primary Goal</label><span class="field-status">Required</span></div>
+                <select id="primary_goal" name="primary_goal" required>
+                    <option value="">Choose a goal</option>
+                    {% for goal in ['Phone calls', 'Quote/service requests', 'Phone calls and quote/service requests'] %}
+                    <option value="{{ goal }}" {% if form.get('primary_goal') == goal %}selected{% endif %}>{{ goal }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <fieldset class="choice-group availability-group">
+                <legend><span class="choice-legend-content">24/7 Emergency Service <span class="field-status">Required</span></span></legend>
+                <div class="choice-panel">
+                    <p class="field-help">Select Yes only when the business has confirmed round-the-clock emergency availability.</p>
+                    <div class="choice-list choice-list-inline">
+                        {% for availability in ['Yes', 'No'] %}
+                        <label class="checkbox" for="emergency-{{ loop.index }}">
+                            <input type="radio" id="emergency-{{ loop.index }}" name="emergency_availability" value="{{ availability }}" {% if form.get('emergency_availability') == availability %}checked{% endif %} required>
+                            <span>{{ availability }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </fieldset>
+        </section>
+
+        <section class="form-section" aria-labelledby="services-heading">
+            <h3 id="services-heading">Services to Advertise</h3>
+            <p class="section-help">Select at least one service. Only selected services appear in the generated plan and exports.</p>
+            <fieldset class="choice-group service-choice-group">
+                <legend class="visually-hidden">Services to Advertise</legend>
+                <div class="choice-list service-grid">
+                    {% for service in services %}
+                    <label class="checkbox" for="service-{{ loop.index }}">
+                        <input type="checkbox" id="service-{{ loop.index }}" name="services" value="{{ service }}" {% if service in selected_services %}checked{% endif %}>
+                        <span>{{ service }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </fieldset>
+        </section>
+
+        <section class="form-section" aria-labelledby="optional-information-heading">
+            <h3 id="optional-information-heading">Optional Business Information</h3>
+            <p class="section-help">Enter only facts verified by the business. The application displays this information as provided and does not independently verify it. Blank details remain clearly labeled placeholders.</p>
+
+            <div class="field-group">
+                <div class="field-heading"><label for="business_phone">Business Phone Number</label><span class="field-status optional">Optional</span></div>
+                <input type="tel" id="business_phone" name="business_phone" maxlength="30" value="{{ form.get('business_phone', '') }}">
+            </div>
+
+            <div class="field-grid">
+                <div class="field-group">
+                    <div class="field-heading"><label for="license_information">License Information</label><span class="field-status optional">Optional</span></div>
+                    <input id="license_information" name="license_information" maxlength="160" value="{{ form.get('license_information', '') }}">
+                </div>
+                <div class="field-group">
+                    <div class="field-heading"><label for="insurance_information">Insurance Information</label><span class="field-status optional">Optional</span></div>
+                    <input id="insurance_information" name="insurance_information" maxlength="160" value="{{ form.get('insurance_information', '') }}">
+                </div>
+            </div>
+
+            <div class="field-group">
+                <div class="field-heading"><label for="additional_business_information">Additional Business Information</label><span class="field-status optional">Optional</span></div>
+                <input id="additional_business_information" name="additional_business_information" maxlength="240" value="{{ form.get('additional_business_information', '') }}">
+            </div>
+
+            <div class="field-group">
+                <div class="field-heading"><label for="website_url">Business Website Base URL</label><span class="field-status optional">Optional</span></div>
+                <input type="url" id="website_url" name="website_url" maxlength="2048" placeholder="https://www.example.com" value="{{ form.get('website_url', '') }}">
+                <p class="field-help">Optional for campaign generation and required for Google Ads Editor export. The URL is checked for safe syntax only; ownership, availability, policy compliance, and service-page existence are not verified.</p>
+            </div>
+        </section>
+
+        <div class="form-actions">
+            <button type="submit">Generate draft campaign plan</button>
+            <p>Generated outputs are drafts and require human review before use.</p>
+        </div>
+    </form>
+</main>
+
+<footer class="app-footer">
+    <div class="page-shell"><p>Local planning tool · No campaign data is saved or sent to Google Ads.</p></div>
+</footer>
+</body>
+</html>

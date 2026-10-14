@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ business_name }} — Local landing-page previews</title>
+    <link rel="stylesheet" href="assets/landing_page.css">
+</head>
+<body class="landing-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="preview-notice">Local preview — not published.</div>
+{% if demo_mode %}<div class="demo-notice">Fictional demonstration — sample information only.</div>{% endif %}
+<header class="site-header">
+    <p class="business-name">{{ business_name }}</p>
+</header>
+<main id="main-content">
+    <section class="hero" aria-labelledby="index-heading">
+        <p class="eyebrow">Landing-page package</p>
+        <h1 id="index-heading">Local Service-Page Previews</h1>
+        <p class="subheadline">Choose a page below. These files work locally and do not send or save requests.</p>
+    </section>
+    <div class="page-content">
+        <section aria-labelledby="pages-heading">
+            <h2 id="pages-heading">Included Pages</h2>
+            <ul class="highlights">
+                {% for page in pages %}<li><a href="{{ page.filename }}">{{ page.service }}</a></li>{% endfor %}
+            </ul>
+        </section>
+        <section class="placeholder-panel" aria-labelledby="instructions-heading">
+            <h2 id="instructions-heading">About This Package</h2>
+            <p>Keep this file, the service pages, and the assets folder together. See README.txt for instructions and limitations.</p>
+            {% if demo_mode %}
+            <p>These details are fictional and are included only to demonstrate the application. Request-service forms are disabled and do not send or save requests.</p>
+            {% else %}
+            <p>Phone and trust details are user-provided or remain clearly labeled placeholders. Request-service forms are disabled and do not send or save requests.</p>
+            {% endif %}
+        </section>
+    </div>
+</main>
+<footer>
+    <p>{{ business_name }} · Local preview — not published.</p>
+</footer>
+</body>
+</html>

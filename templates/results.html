@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Draft Campaign Plan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="app-shell">
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<header class="app-header results-header" id="top">
+    <div class="page-shell">
+        <p class="eyebrow">Rules-based Google Search recommendations</p>
+        <h1>Draft Campaign Plan</h1>
+        <p class="product-intro">Review every recommendation before use. Campaigns are not published, landing-page previews remain local, and conversion tracking has not been configured.</p>
+        <p><a class="header-link" href="{{ url_for('intake') }}">← Back to intake form</a></p>
+    </div>
+</header>
+
+<main class="page-shell results" id="main-content">
+    {% if demo_mode %}
+    <div class="demo-banner" role="note">
+        <strong>Fictional demonstration — sample information only.</strong>
+        <span>These outputs are drafts and are never published or transmitted automatically.</span>
+    </div>
+    {% endif %}
+    <section class="plan-summary" aria-labelledby="plan-summary-heading">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Generated output</p>
+                <h2 id="plan-summary-heading">Plan at a Glance</h2>
+            </div>
+            <p>Counts reflect only the services selected for this draft.</p>
+        </div>
+        <ul class="metric-grid">
+            <li data-summary="campaigns"><strong>{{ plan_summary.campaigns }}</strong><span>Campaigns</span></li>
+            <li data-summary="ad-groups"><strong>{{ plan_summary.ad_groups }}</strong><span>Ad Groups</span></li>
+            <li data-summary="keywords"><strong>{{ plan_summary.keywords }}</strong><span>Keywords</span></li>
+            <li data-summary="negative-keywords"><strong>{{ plan_summary.negative_keywords }}</strong><span>Negative Keywords</span></li>
+            <li data-summary="responsive-search-ads"><strong>{{ plan_summary.responsive_search_ads }}</strong><span>Responsive Search Ads</span></li>
+        </ul>
+    </section>
+
+    <section class="export-section" aria-labelledby="exports-heading">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Local downloads</p>
+                <h2 id="exports-heading">Export This Draft</h2>
+            </div>
+            <p>Each download is regenerated from the validated details below.</p>
+        </div>
+        <div class="download-actions" aria-label="Campaign downloads">
+            <form class="export-card" method="post" action="{{ url_for('export') }}">
+                {% for field in ['business_name', 'city', 'state', 'service_area', 'monthly_budget', 'emergency_availability', 'primary_goal', 'business_phone', 'license_information', 'insurance_information', 'additional_business_information', 'website_url'] %}
+                <input type="hidden" name="{{ field }}" value="{{ form.get(field, '') }}">
+                {% endfor %}
+                {% for service in selected_services %}
+                <input type="hidden" name="services" value="{{ service }}">
+                {% endfor %}
+                <div><h3>Excel Workbook</h3><p>Download the eight-sheet campaign plan for review and handoff.</p></div>
+                <button type="submit">Download Excel</button>
+            </form>
+            <form class="export-card" method="post" action="{{ url_for('export_landing_pages') }}">
+                {% for field in ['business_name', 'city', 'state', 'service_area', 'monthly_budget', 'emergency_availability', 'primary_goal', 'business_phone', 'license_information', 'insurance_information', 'additional_business_information', 'website_url'] %}
+                <input type="hidden" name="{{ field }}" value="{{ form.get(field, '') }}">
+                {% endfor %}
+                {% for service in selected_services %}
+                <input type="hidden" name="services" value="{{ service }}">
+                {% endfor %}
+                <div><h3>Offline Landing Pages</h3><p>Download local HTML previews and shared CSS for selected services.</p></div>
+                <button type="submit">Download landing pages</button>
+            </form>
+            <form class="export-card" method="post" action="{{ url_for('export_google_ads_editor') }}">
+                {% for field in ['business_name', 'city', 'state', 'service_area', 'monthly_budget', 'emergency_availability', 'primary_goal', 'business_phone', 'license_information', 'insurance_information', 'additional_business_information', 'website_url'] %}
+                <input type="hidden" name="{{ field }}" value="{{ form.get(field, '') }}">
+                {% endfor %}
+                {% for service in selected_services %}
+                <input type="hidden" name="services" value="{{ service }}">
+                {% endfor %}
+                <div>
+                    <h3>Google Ads Editor Draft</h3>
+                    <p>Download paused proposed changes for manual import and review.</p>
+                    {% if not form.get('website_url') %}<p class="field-help">Add a business website URL on the intake form to enable this export.</p>{% endif %}
+                </div>
+                <button type="submit" {% if not form.get('website_url') %}disabled{% endif %}>Download Google Ads Editor draft</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="submitted-details" aria-labelledby="submitted-heading">
+        <h2 id="submitted-heading">Submitted Campaign Details</h2>
+        <dl class="summary">
+            <dt>Business Name</dt><dd>{{ form.get('business_name', '') }}</dd>
+            <dt>City / State</dt><dd>{{ form.get('city', '') }}, {{ form.get('state', '') }}</dd>
+            <dt>Service Area</dt><dd>{{ form.get('service_area', '') }}</dd>
+            <dt>Monthly Budget (USD)</dt><dd>${{ '{:,.2f}'.format(form.get('monthly_budget')) }}</dd>
+            <dt>Selected Services</dt><dd>{{ selected_services | join(', ') }}</dd>
+            <dt>24/7 Emergency Service</dt><dd>{{ form.get('emergency_availability', '') }}</dd>
+            <dt>Primary Goal</dt><dd>{{ form.get('primary_goal', '') }}</dd>
+            <dt>Business Website</dt><dd>{{ form.get('website_url') or 'Not provided' }}</dd>
+        </dl>
+        <h3>{{ 'Fictional Demo Information' if demo_mode else 'User-Provided Business Information' }}</h3>
+        <p>{% if demo_mode %}These details are fictional and are included only to demonstrate the application.{% else %}These details were supplied by the user and were not independently verified by the application.{% endif %}</p>
+        <dl class="summary">
+            <dt>Business Phone</dt><dd>{{ form.get('business_phone') or 'Not provided' }}</dd>
+            <dt>License Information</dt><dd>{{ form.get('license_information') or 'Not provided' }}</dd>
+            <dt>Insurance Information</dt><dd>{{ form.get('insurance_information') or 'Not provided' }}</dd>
+            <dt>Additional Business Information</dt><dd>{{ form.get('additional_business_information') or 'Not provided' }}</dd>
+        </dl>
+    </section>
+
+    <div class="draft-banner" role="note">
+        <strong>Draft Campaign Plan — review before use.</strong>
+        <span>Outputs are local recommendations. Google Ads Editor drafts are never uploaded automatically.</span>
+    </div>
+
+    <nav class="section-nav" aria-label="Campaign plan sections">
+        <p>Jump to a Section</p>
+        <ul>
+            <li><a href="#campaign-structure">Campaign Structure</a></li>
+            <li><a href="#keywords">Keywords</a></li>
+            <li><a href="#negative-keywords">Negative Keywords</a></li>
+            <li><a href="#ads">Ads</a></li>
+            <li><a href="#budget-allocation">Budget Allocation</a></li>
+            <li><a href="#landing-pages">Landing Pages</a></li>
+            <li><a href="#conversion-tracking">Conversion Tracking</a></li>
+            <li><a href="#warnings">Warnings</a></li>
+        </ul>
+    </nav>
+
+    <p>Google Search campaign recommendations based on submitted details and local rules-based templates.</p>
+    {% if plan.warnings %}
+    <div class="message" role="status">
+        <strong>Review Notes</strong>
+        <ul>{% for warning in plan.warnings %}<li>{{ warning }}</li>{% endfor %}</ul>
+    </div>
+    {% endif %}
+
+    {% macro workbook_section(section) %}
+    <section id="{{ section.id }}" class="result-section" aria-labelledby="{{ section.id }}-heading">
+        <h2 id="{{ section.id }}-heading">{{ section.title | title }}</h2>
+        <div class="table-scroll" role="region" aria-label="{{ section.title | title }} table" tabindex="0">
+            <table>
+                <caption>{{ section.title | title }} — rules-based recommendations</caption>
+                <thead><tr>{% for header in section.headers %}<th scope="col">{{ header }}</th>{% endfor %}</tr></thead>
+                <tbody>
+                {% for row in section.rows %}
+                    <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if section.id == 'landing-pages' %}
+        <p>Landing-page previews open in a new tab. They are local previews and are not published.</p>
+        <div class="preview-actions">
+        {% for preview in preview_pages %}
+        <form method="post" action="{{ url_for('preview', service_slug=preview.slug) }}" target="_blank" rel="noopener">
+            {% for field in ['business_name', 'city', 'state', 'service_area', 'monthly_budget', 'emergency_availability', 'primary_goal', 'business_phone', 'license_information', 'insurance_information', 'additional_business_information', 'website_url'] %}
+            <input type="hidden" name="{{ field }}" value="{{ form.get(field, '') }}">
+            {% endfor %}
+            {% for service in selected_services %}
+            <input type="hidden" name="services" value="{{ service }}">
+            {% endfor %}
+            <button type="submit">Preview landing page — {{ preview.service }} (opens in a new tab)</button>
+        </form>
+        {% endfor %}
+        </div>
+        {% endif %}
+        {% if section.priorities is defined %}
+        <h3>Initial ad group priorities</h3>
+        <ul>{% for row in section.priorities %}<li>{{ row[1] }}: {{ row[2] }}</li>{% endfor %}</ul>
+        {% endif %}
+        {% if section.note is defined %}<p>{{ section.note }}</p>{% endif %}
+        <p class="section-return"><a href="#top">Back to top</a></p>
+    </section>
+    {% endmacro %}
+
+    {% for section in plan.sections[:3] %}{{ workbook_section(section) }}{% endfor %}
+
+    <section id="ads" class="result-section" aria-labelledby="ads-heading">
+        <h2 id="ads-heading">Ads</h2>
+        <p>Counts include spaces and punctuation. Each group has 15 headlines and 4 descriptions.</p>
+        {% for ad in plan.ads %}
+        <article class="ad-group">
+            <h3>{{ ad.group }}</h3>
+            <p>Campaign: {{ ad.campaign }}</p>
+            {% for title, assets, limit in [('Headlines', ad.headlines, 30), ('Descriptions', ad.descriptions, 90)] %}
+            <div class="table-scroll" role="region" aria-label="{{ ad.group }} {{ title | lower }} table" tabindex="0">
+                <table>
+                    <caption>{{ title }} ({{ assets | length }}) — {{ limit }} character limit</caption>
+                    <thead><tr><th scope="col">#</th><th scope="col">Text</th><th scope="col">Characters</th><th scope="col">Notes</th></tr></thead>
+                    <tbody>
+                    {% for asset in assets %}
+                        <tr><td>{{ loop.index }}</td><td class="asset-text">{{ asset.text }}</td><td>{{ asset.count }} / {{ limit }}</td><td>{{ asset.notes }}</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
+        </article>
+        {% endfor %}
+        <p class="section-return"><a href="#top">Back to top</a></p>
+    </section>
+
+    {% for section in plan.sections[3:] %}{{ workbook_section(section) }}{% endfor %}
+
+    <section id="warnings" class="result-section" aria-labelledby="warnings-heading">
+        <h2 id="warnings-heading">Warnings</h2>
+        <ul>{% for warning in plan.warnings %}<li>{{ warning }}</li>{% endfor %}</ul>
+        <p>Template basis: reviewed service-specific campaign planning templates.</p>
+        <p class="section-return"><a href="#top">Back to top</a> · <a href="{{ url_for('intake') }}">Back to intake form</a></p>
+    </section>
+</main>
+
+<footer class="app-footer">
+    <div class="page-shell"><p>Draft planning output · Human review is required before campaign use.</p></div>
+</footer>
+</body>
+</html>

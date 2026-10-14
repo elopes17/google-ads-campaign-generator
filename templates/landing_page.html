@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.service }} — {{ page.business_name }} — Local preview</title>
+    <link rel="stylesheet" href="{{ 'assets/landing_page.css' if offline else url_for('static', filename='landing_page.css') }}">
+</head>
+<body class="landing-page">
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="preview-notice">{{ page.preview_notice }}</div>
+{% if page.demo_mode %}<div class="demo-notice">{{ page.demo_notice }}</div>{% endif %}
+<header class="site-header">
+    <p class="business-name">{{ page.business_name }}</p>
+    {% if offline %}<a href="index.html">Back to landing-page index</a>{% else %}<a href="{{ url_for('intake') }}">Back to intake form</a>{% endif %}
+</header>
+
+{% macro contact_actions() %}
+<div class="contact-actions">
+    {% for action in page.cta.actions %}
+    <a class="cta-link" href="{{ action.href }}">{{ action.label }}</a>
+    {% endfor %}
+</div>
+{% endmacro %}
+
+<main id="main-content">
+    <section class="hero" aria-labelledby="hero-heading">
+        <p class="eyebrow">{{ page.service }}</p>
+        <h1 id="hero-heading">{{ page.hero_headline }}</h1>
+        <p class="subheadline">{{ page.hero_subheadline }}</p>
+        {{ contact_actions() }}
+    </section>
+
+    <div class="page-content">
+        <section aria-labelledby="service-heading">
+            <h2 id="service-heading">About This Service</h2>
+            <p>{{ page.description }}</p>
+            <ul class="highlights">
+                {% for highlight in page.highlights %}<li>{{ highlight }}</li>{% endfor %}
+            </ul>
+        </section>
+
+        <div class="context-grid">
+            <section aria-labelledby="area-heading">
+                <h2 id="area-heading">{{ page.service_area_heading }}</h2>
+                <p>{{ page.service_area_text }}</p>
+            </section>
+            {% if page.availability_text %}
+            <section aria-labelledby="availability-heading">
+                <h2 id="availability-heading">Service Availability</h2>
+                <p>{{ page.availability_text }}</p>
+            </section>
+            {% endif %}
+        </div>
+
+        <section class="placeholder-panel" aria-labelledby="trust-heading">
+            <h2 id="trust-heading">{{ page.business_information_heading }}</h2>
+            <p>{{ page.business_information_disclosure }}</p>
+            <dl>
+                {% for item in page.business_information %}
+                <dt>{{ item.label }}{% if item.provided and not page.demo_mode %} (user-provided){% endif %}</dt>
+                <dd>{{ item.text }}</dd>
+                {% endfor %}
+                {% if not page.cta.show_calls %}
+                <dt>Business Phone{% if page.phone.provided and not page.demo_mode %} (user-provided){% endif %}</dt>
+                <dd>{{ page.phone.display if page.phone.provided else page.phone_placeholder }}</dd>
+                {% endif %}
+            </dl>
+        </section>
+
+        <section aria-labelledby="faq-heading">
+            <h2 id="faq-heading">Service Questions</h2>
+            {% for faq in page.faqs %}
+            <article class="faq">
+                <h3>{{ faq.question }}</h3>
+                <p>{{ faq.answer }}</p>
+            </article>
+            {% endfor %}
+        </section>
+
+        {% if page.cta.show_calls %}
+        <section class="placeholder-panel" id="phone-placeholder" aria-labelledby="phone-heading" tabindex="-1">
+            <h2 id="phone-heading">{{ 'Business Phone' if page.phone.provided else 'Business Phone Placeholder' }}</h2>
+            {% if page.phone.provided %}
+            <p><a href="{{ page.phone.tel_href }}">{{ page.phone.display }}</a></p>
+            <p>{{ page.phone_disclosure }}</p>
+            {% else %}
+            <p>{{ page.phone_placeholder }}</p>
+            <p>This preview has no working phone link.</p>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        {% if page.cta.show_form %}
+        <section id="request-service" aria-labelledby="request-heading" tabindex="-1">
+            <h2 id="request-heading">Request Service — Preview Form</h2>
+            <p id="form-notice">This form is a preview and does not send or save requests.</p>
+            <!-- No enclosing form: these disabled controls cannot submit a request. -->
+            <fieldset disabled aria-describedby="form-notice">
+                <legend>Service request mockup</legend>
+                <label for="request-name">Your name</label>
+                <input id="request-name" type="text" disabled>
+                <label for="request-email">Email</label>
+                <input id="request-email" type="email" disabled>
+                <label for="request-details">Service details</label>
+                <textarea id="request-details" rows="4" disabled></textarea>
+                <button type="button" disabled>Send request (disabled in preview)</button>
+            </fieldset>
+        </section>
+        {% endif %}
+
+        <section class="final-contact" aria-labelledby="final-heading">
+            <h2 id="final-heading">{{ page.final_cta.heading }}</h2>
+            <p>{{ page.final_cta.text }}</p>
+            {{ contact_actions() }}
+        </section>
+    </div>
+</main>
+<footer>
+    <p>{{ page.business_name }} · {{ page.preview_notice }}</p>
+    {% if offline %}
+    <p>This file is part of an offline preview package. <a href="index.html">Back to landing-page index</a></p>
+    {% else %}
+    <p>Your campaign results remain in the original tab. <a href="{{ url_for('intake') }}">Back to intake form</a></p>
+    {% endif %}
+</footer>
+</body>
+</html>

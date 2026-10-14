@@ -1,0 +1,35 @@
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Coverage and build output
+.coverage
+htmlcov/
+build/
+dist/
+
+# Local configuration and logs
+.env
+.env.*
+!.env.example
+*.log
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+
+# Locally generated campaign downloads
+downloads/
+exports/
+*-google-ads-plan.xlsx
+*-landing-pages.zip
+*-google-ads-editor.zip
+google-ads-campaign-plan.xlsx
+google-ads-landing-pages.zip
+google-ads-editor-draft.zip
