@@ -3,6 +3,11 @@
 A local Flask application that turns validated plumbing and heating business details into a deterministic Google Search campaign draft. It provides a browser review, an eight-sheet Excel workbook, offline landing-page previews, and a paused Google Ads Editor import package.
 
 The application uses curated local rules rather than AI or external APIs. It does not connect to Google Ads, publish campaigns, collect leads, or store submitted business information.
+## Live Demo
+
+[Open the Google Ads Campaign Generator](https://google-ads-campaign-generator.onrender.com)
+
+The free hosting service may take about 50 seconds to wake after a period of inactivity.
 
 ![Validated campaign intake using fictional demonstration data](docs/screenshots/01-intake.png)
 
